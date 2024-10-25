@@ -9,14 +9,16 @@ export type Color =
   | "cyan"
   | "white";
 
-export const fg = (str: string, color: Color) =>
-  `\x1b[${FG[color]}m${str}\x1b[0m`;
+const RESET = "\x1b[0m";
 
-export const bg = (str: string, color: Color) =>
-  `\x1b[${BG[color]}m${str}\x1b[0m`;
+export const fg = (str: string, color: Color) => `\x1b[${FG[color]}m${str}`;
+
+export const bg = (str: string, color: Color) => `\x1b[${BG[color]}m${str}`;
+
+export const rs = (str: string) => str + RESET;
 
 const FG: Record<Color, number> = {
-  default: 0,
+  default: 1,
   black: 30,
   red: 31,
   green: 32,
@@ -28,7 +30,7 @@ const FG: Record<Color, number> = {
 };
 
 const BG: Record<Color, number> = {
-  default: 0,
+  default: 1,
   black: 40,
   red: 41,
   green: 42,

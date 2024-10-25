@@ -1,7 +1,11 @@
 import { Buffer } from "buffer";
 import process from "process";
-import type { Color } from "./color.js";
-import { fg } from "./color.js";
+import { bg, fg, rs, type Color } from "./color.js";
+
+interface Point {
+  x: number;
+  y: number;
+}
 
 const map = [
   [0x1, 0x8],
@@ -16,16 +20,26 @@ export class Canvas {
   readonly #content: Buffer;
 
   readonly #colors: Color[];
+  readonly #bgColors: Color[];
+
+  get center(): Point {
+    return {
+      x: this.width / 2,
+      y: this.height / 2,
+    };
+  }
 
   constructor(width?: number, height?: number) {
     this.width = width ?? process.stdout.columns * 2 - 2;
     this.height = height ?? process.stdout.rows * 4;
     this.#content = Buffer.alloc((this.width * this.height) / 8);
     this.#colors = new Array(this.#content.length).fill("default");
+    this.#bgColors = new Array(this.#content.length).fill("default");
   }
 
-  clear() {
-    this.#colors.fill("default");
+  clear(color: Color = "default") {
+    this.#colors.fill(color);
+    this.#bgColors.fill(color);
     this.#content.fill(0);
   }
 
@@ -37,9 +51,9 @@ export class Canvas {
         acc.push(delimiter);
       }
 
-      acc.push(
-        cur ? fg(String.fromCharCode(0x2800 + cur), this.#colors[i]) : " "
-      );
+      const char = cur ? String.fromCharCode(0x2800 + cur) : " ";
+      const colored = rs(fg(bg(char, this.#bgColors[i]), this.#colors[i]));
+      acc.push(colored);
 
       return acc;
     }, []);
@@ -49,7 +63,7 @@ export class Canvas {
     return result.join("");
   }
 
-  set(x: number, y: number, color?: Color): void {
+  set(x: number, y: number, color: Color = "white"): void {
     if (!(x >= 0 && x < this.width && y >= 0 && y < this.height)) {
       return;
     }
@@ -65,21 +79,6 @@ export class Canvas {
       this.#colors[coord] = color;
     }
     this.#content[coord] |= mask;
-  }
-
-  unset(x: number, y: number): void {
-    if (!(x >= 0 && x < this.width && y >= 0 && y < this.height)) {
-      return;
-    }
-    x = Math.floor(x);
-    y = Math.floor(y);
-    const nx = Math.floor(x / 2);
-    const ny = Math.floor(y / 4);
-    const coord = nx + (this.width / 2) * ny;
-    const mask = map[y % 4][x % 2];
-
-    this.#colors[coord] = "default";
-    this.#content[coord] &= ~mask;
   }
 
   line(x0: number, y0: number, x1: number, y1: number, color?: Color) {

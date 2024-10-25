@@ -1,216 +1,81 @@
 #!/usr/bin/env node
 
 import { Canvas } from "./canvas.js";
-import type { Color } from "./color.js";
+import { asteroids, planets, sun } from "./config.js";
+import { Terminal } from "./terminal.js";
+import { Asteroid, Moon, Planet } from "./types.js";
+
+const DEFAULT_FPS = 20;
+
+const args = process.argv;
+
+const hasClear = args.includes("--clear");
+
+const fpsArg = Number(args[args.indexOf("--fps") + 1]);
+const fps = isNaN(fpsArg) ? DEFAULT_FPS : fpsArg;
 
 const canvas = new Canvas();
+const terminal = new Terminal();
 
-interface Planet {
-  name: string;
-  radius: number;
-  distance: number;
-  color: Color;
-  speed: number;
-  rings?: Color[];
-}
+const center = canvas.center;
 
-// Setup planets and properties
-const planets: Planet[] = [
-  { name: "Mercury", radius: 1, distance: 25, color: "default", speed: 20 },
-  { name: "Venus", radius: 3, distance: 35, color: "yellow", speed: 13.9 },
-  { name: "Earth", radius: 4, distance: 47, color: "blue", speed: 11.4 },
-  { name: "Mars", radius: 3, distance: 60, color: "red", speed: 8.7 },
-  { name: "Jupiter", radius: 6, distance: 85, color: "yellow", speed: 3.6 },
-  {
-    name: "Saturn",
-    radius: 4,
-    distance: 107,
-    color: "white",
-    speed: 2,
-    rings: ["default", "default"],
-  },
-  {
-    name: "Uranus",
-    radius: 4,
-    distance: 125,
-    color: "green",
-    speed: 0.7,
-    rings: ["green"],
-  },
-  {
-    name: "Neptune",
-    radius: 4,
-    distance: 140,
-    color: "blue",
-    speed: 0.1,
-  },
-];
+const animate = (): void => {
+  const time = performance.now() / 100000;
 
-const jupiterMoons: Moon[] = [
-  {
-    name: "Io",
-    orbitRadius: 9,
-    speed: 0.2,
-    angle: 0,
-    color: "yellow",
-  },
-  {
-    name: "Europa",
-    orbitRadius: 10,
-    speed: 0.15,
-    angle: 0,
-    color: "white",
-  },
-  {
-    name: "Ganymede",
-    orbitRadius: 12,
-    speed: 0.1,
-    angle: 0,
-    color: "white",
-  },
-];
+  canvas.clear();
 
-interface Asteroid {
-  radius: number;
-  angle: number;
-  speed: number;
-}
+  drawSun();
 
-const asteroids: Asteroid[] = Array.from({ length: 250 }, () => ({
-  radius: 65 + Math.random() * 5,
-  angle: Math.random() * 2 * Math.PI,
-  speed: 0.005 + Math.random() * 0.002,
-}));
+  planets.forEach((planet) => {
+    drawOrbit(planet);
+    drawPlanet(planet, time);
+  });
+  asteroids.forEach(drawAsteroid);
 
-const kuiperBelt: Asteroid[] = Array.from({ length: 1000 }, () => {
-  const randomRadius = Math.random() * 40;
-  const radius = 150 + randomRadius;
-  return {
-    radius,
-    angle: Math.random() * 2 * Math.PI,
-    speed: 0.001 + Math.random() * 0.002 + randomRadius * 0.0002,
-  };
-});
+  hasClear && terminal.clear();
+  terminal.print(canvas.frame());
 
-interface Sun {
-  x: number;
-  y: number;
-  radius: number;
-  color: Color;
-}
-
-const sun: Sun = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  radius: 15,
-  color: "yellow",
+  setTimeout(() => animate(), Math.round(1000 / fps));
 };
 
-interface Moon {
-  name: string;
-  orbitRadius: number;
-  speed: number;
-  angle: number;
-  color: Color;
+animate();
+
+function drawSun(): void {
+  canvas.circle(center.x, center.y, sun.radius, sun.color);
 }
 
-const moon: Moon = {
-  name: "moon",
-  orbitRadius: 8,
-  speed: 0.6,
-  angle: 0,
-  color: "white",
-};
-
-let time = 0;
-
-function drawSun() {
-  canvas.circle(sun.x, sun.y, sun.radius, sun.color);
-}
-
-function drawPlanet(planet: Planet, angle: number) {
-  const x = sun.x + planet.distance * Math.cos(angle);
-  const y = sun.y + planet.distance * Math.sin(angle);
+function drawPlanet(planet: Planet, time: number): void {
+  const angle = time * planet.speed;
+  const x = center.x + planet.distance * Math.cos(angle);
+  const y = center.y + planet.distance * Math.sin(angle);
 
   canvas.circle(x, y, planet.radius, planet.color);
 
-  if (planet.name === "Earth") {
-    drawMoon(x, y);
-  }
+  planet.rings?.forEach(({ distance, color = "white" }) => {
+    canvas.ring(x, y, planet.radius + distance, color);
+  });
 
-  if (planet.name === "Jupiter") {
-    drawJupiterMoons(x, y);
-  }
-
-  if (planet.rings) {
-    planet.rings.forEach((color, i) => {
-      canvas.ring(x, y, planet.radius + 3 + i, color);
-    });
-  }
-}
-
-function drawAsteroids(asteroids: Asteroid[]) {
-  asteroids.forEach((asteroid) => {
-    const x = sun.x + asteroid.radius * Math.cos(asteroid.angle);
-    const y = sun.y + asteroid.radius * Math.sin(asteroid.angle);
-
-    canvas.set(x, y);
+  planet.moons?.forEach((moon) => {
+    drawMoon(moon, x, y);
+    moon.angle += moon.speed;
   });
 }
 
-function drawMoon(earthX: number, earthY: number) {
-  const moonX = earthX + moon.orbitRadius * Math.cos(moon.angle);
-  const moonY = earthY + moon.orbitRadius * Math.sin(moon.angle);
+function drawAsteroid(asteroid: Asteroid): void {
+  const x = center.x + asteroid.radius * Math.cos(asteroid.angle);
+  const y = center.y + asteroid.radius * Math.sin(asteroid.angle);
+  asteroid.angle += asteroid.speed;
+
+  canvas.set(x, y);
+}
+
+function drawMoon(moon: Moon, x: number, y: number): void {
+  const moonX = x + moon.orbitRadius * Math.cos(moon.angle);
+  const moonY = y + moon.orbitRadius * Math.sin(moon.angle);
 
   canvas.circle(moonX, moonY, 1, moon.color);
 }
 
-function drawOrbit(planet: Planet) {
-  canvas.ring(sun.x, sun.y, planet.distance);
+function drawOrbit(planet: Planet): void {
+  canvas.ring(center.x, center.y, planet.distance);
 }
-
-function drawJupiterMoons(x: number, y: number) {
-  jupiterMoons.forEach((m) => {
-    const moonX = x + m.orbitRadius * Math.cos(m.angle);
-    const moonY = y + m.orbitRadius * Math.sin(m.angle);
-
-    canvas.circle(moonX, moonY, 1, m.color);
-  });
-}
-
-function animate() {
-  canvas.clear();
-  process.stdout.write("\x1Bc");
-
-  // Draw Sun
-  drawSun();
-
-  // Draw planets and their orbits
-  planets.forEach((planet) => {
-    const angle = time * planet.speed;
-    drawOrbit(planet);
-    drawPlanet(planet, angle);
-  });
-
-  moon.angle += moon.speed;
-  jupiterMoons.forEach((moon) => {
-    moon.angle += moon.speed;
-  });
-
-  drawAsteroids(kuiperBelt);
-  kuiperBelt.forEach((item) => {
-    item.angle += item.speed;
-  });
-  drawAsteroids(asteroids);
-  asteroids.forEach((item) => {
-    item.angle += item.speed;
-  });
-
-  time += 0.001;
-
-  process.stdout.write(canvas.frame());
-  setTimeout(() => animate(), 30);
-}
-
-// Start animation
-animate();
