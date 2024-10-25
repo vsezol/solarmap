@@ -4,6 +4,7 @@ import { Canvas } from "./canvas.js";
 import { asteroids, planets, sun } from "./config.js";
 import { Terminal } from "./terminal.js";
 import { Asteroid, Moon, Planet } from "./types.js";
+import { version } from "./version.js";
 
 const DEFAULT_FPS = 20;
 
@@ -21,7 +22,7 @@ terminal.onResize(() => {
 });
 
 let time = performance.now();
-let currentFps = 0;
+let currentFps = fps;
 
 const animate = (): void => {
   const ticks = time / 100000;
@@ -37,7 +38,7 @@ const animate = (): void => {
   asteroids.forEach(drawAsteroid);
 
   drawAuthorInfo();
-  drawFps();
+  drawAppInfo();
 
   terminal.clear();
   terminal.print(canvas.frame());
@@ -103,6 +104,8 @@ function calcFps(): void {
   time = currentTime;
 }
 
-function drawFps(): void {
-  canvas.text(canvas.width - 12, canvas.height - 1, `${currentFps} FPS`);
+function drawAppInfo(): void {
+  const text = `ver. ${version} | ${currentFps} FPS`;
+
+  canvas.text(canvas.width - text.length * 2, canvas.height - 1, text);
 }

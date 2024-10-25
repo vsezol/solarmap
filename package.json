@@ -1,6 +1,6 @@
 {
   "name": "solarmap",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "build/index.js",
   "type": "module",
   "files": [
@@ -10,6 +10,7 @@
     "solarmap": "build/index.js"
   },
   "scripts": {
+    "prebuild": "node gen-version.js",
     "build": "tsc",
     "start": "npm run build && node build/index.js"
   },
