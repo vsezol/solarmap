@@ -13,6 +13,10 @@ const args = process.argv;
 const fpsArg = Number(args[args.indexOf("--fps") + 1]);
 const fps = isNaN(fpsArg) ? DEFAULT_FPS : fpsArg;
 
+const hasHints = args.includes("--hints");
+
+const hasOrbits = !args.includes("--no-orbits");
+
 const terminal = new Terminal();
 
 let canvas = new Canvas();
@@ -32,7 +36,7 @@ const animate = (): void => {
   drawSun();
 
   planets.forEach((planet) => {
-    drawOrbit(planet);
+    hasOrbits && drawOrbit(planet);
     drawPlanet(planet, ticks);
   });
   asteroids.forEach(drawAsteroid);
@@ -51,6 +55,7 @@ animate();
 
 function drawSun(): void {
   canvas.circle(canvas.center.x, canvas.center.y, sun.radius, sun.color);
+  hasHints && drawTextHint(canvas.center.x, canvas.center.y, sun.name);
 }
 
 function drawPlanet(planet: Planet, ticks: number): void {
@@ -63,6 +68,8 @@ function drawPlanet(planet: Planet, ticks: number): void {
   planet.rings?.forEach(({ distance, color = "white" }) => {
     canvas.ring(x, y, planet.radius + distance, color);
   });
+
+  hasHints && drawTextHint(x, y, planet.name);
 
   planet.moons?.forEach((moon) => {
     drawMoon(moon, x, y);
@@ -82,6 +89,7 @@ function drawMoon(moon: Moon, x: number, y: number): void {
   const moonX = x + moon.orbitRadius * Math.cos(moon.angle);
   const moonY = y + moon.orbitRadius * Math.sin(moon.angle);
 
+  hasHints && drawTextHint(moonX, moonY, moon.name);
   canvas.circle(moonX, moonY, 1, moon.color);
 }
 
@@ -106,4 +114,8 @@ function drawAppInfo(): void {
   const text = `ver. ${version} | ${currentFps} FPS`;
 
   canvas.text(canvas.width - text.length * 2, canvas.height - 1, text);
+}
+
+function drawTextHint(x: number, y: number, text: string): void {
+  canvas.text(x - Math.ceil(text.length / 2), y, text);
 }

@@ -113,4 +113,5 @@ export const asteroids: Asteroid[] = [
 export const sun: Sun = {
   radius: 15,
   color: "yellow",
+  name: "Sun",
 };

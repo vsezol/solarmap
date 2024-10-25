@@ -33,6 +33,7 @@ export interface Asteroid {
 
 export interface Sun {
   radius: number;
+  name: string;
   color: Color;
 }
 
