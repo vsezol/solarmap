@@ -1,0 +1,23 @@
+{
+  "name": "solarmap",
+  "version": "0.0.1",
+  "main": "build/index.js",
+  "type": "module",
+  "files": [
+    "build"
+  ],
+  "bin": {
+    "solarmap": "build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node build/index.js"
+  },
+  "author": "Vsevolod Zolotov | vsezol.com | vsezold@gmail.com",
+  "license": "ISC",
+  "description": "Solar system in your terminal!",
+  "devDependencies": {
+    "@types/node": "^22.8.0",
+    "typescript": "^5.6.3"
+  }
+}
