@@ -32,6 +32,10 @@ const animate = (): void => {
   });
   asteroids.forEach(drawAsteroid);
 
+  canvas.text(20, 10, "Vsevolod Zolotov");
+  canvas.text(20, 11, "Senior Frontend Developer");
+  canvas.text(20, 12, "vsezol.com");
+
   hasClear && terminal.clear();
   terminal.print(canvas.frame());
 

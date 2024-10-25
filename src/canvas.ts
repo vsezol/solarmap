@@ -15,9 +15,12 @@ const map = [
 ];
 
 export class Canvas {
+  readonly rows: number;
+  readonly columns: number;
   readonly width: number;
   readonly height: number;
   readonly #content: Buffer;
+  readonly #text: (string | undefined)[];
 
   readonly #colors: Color[];
   readonly #bgColors: Color[];
@@ -30,20 +33,26 @@ export class Canvas {
   }
 
   constructor(width?: number, height?: number) {
-    this.width = width ?? process.stdout.columns * 2 - 2;
-    this.height = height ?? process.stdout.rows * 4;
+    this.rows = process.stdout.rows;
+    this.columns = process.stdout.columns;
+
+    this.width = width ?? this.columns * 2 - 2;
+    this.height = height ?? this.rows * 4;
+
     this.#content = Buffer.alloc((this.width * this.height) / 8);
     this.#colors = new Array(this.#content.length).fill("default");
     this.#bgColors = new Array(this.#content.length).fill("default");
+    this.#text = new Array(this.#content.length).fill(undefined);
   }
 
-  clear(color: Color = "default") {
+  clear(color: Color = "default"): void {
     this.#colors.fill(color);
     this.#bgColors.fill(color);
+    this.#text.fill(undefined);
     this.#content.fill(0);
   }
 
-  frame(delimiter = "\n") {
+  frame(delimiter = "\n"): string {
     const frameWidth = this.width / 2;
 
     const result = this.#content.reduce<string[]>((acc, cur, i) => {
@@ -51,7 +60,13 @@ export class Canvas {
         acc.push(delimiter);
       }
 
-      const char = cur ? String.fromCharCode(0x2800 + cur) : " ";
+      let char: string;
+      if (typeof this.#text[i] === "string") {
+        char = this.#text[i] ?? " ";
+      } else {
+        char = cur ? String.fromCharCode(0x2800 + cur) : " ";
+      }
+
       const colored = rs(fg(bg(char, this.#bgColors[i]), this.#colors[i]));
       acc.push(colored);
 
@@ -81,7 +96,7 @@ export class Canvas {
     this.#content[coord] |= mask;
   }
 
-  line(x0: number, y0: number, x1: number, y1: number, color?: Color) {
+  line(x0: number, y0: number, x1: number, y1: number, color?: Color): void {
     const dx = Math.abs(x1 - x0);
     const dy = Math.abs(y1 - y0);
     const sx = x0 < x1 ? 1 : -1;
@@ -107,7 +122,7 @@ export class Canvas {
     }
   }
 
-  circle(x0: number, y0: number, radius: number, color?: Color) {
+  circle(x0: number, y0: number, radius: number, color?: Color): void {
     let x = radius;
     let y = 0;
     let decisionOver2 = 1 - x;
@@ -128,7 +143,7 @@ export class Canvas {
     }
   }
 
-  ring(x0: number, y0: number, radius: number, color?: Color) {
+  ring(x0: number, y0: number, radius: number, color?: Color): void {
     let x = radius;
     let y = 0;
     let decisionOver2 = 1 - x;
@@ -150,6 +165,15 @@ export class Canvas {
         x--;
         decisionOver2 += 2 * (y - x) + 1;
       }
+    }
+  }
+
+  text(col: number, row: number, text: string, color: Color = "white"): void {
+    const global = row * (this.columns - 1) + col;
+
+    for (let i = 0; i < text.length; i++) {
+      this.#text[global + i] = text[i];
+      this.#colors[global + i] = color;
     }
   }
 }
