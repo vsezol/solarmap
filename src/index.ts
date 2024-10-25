@@ -90,11 +90,9 @@ function drawOrbit(planet: Planet): void {
 }
 
 function drawAuthorInfo(): void {
-  canvas.clearReact(8, 8, 72, 26);
-  canvas.rect(8, 8, 72, 26, "white");
   canvas.text(12, 12, "Vsevolod Zolotov, Senior Dev.");
   canvas.text(12, 20, "website:");
-  canvas.text(30, 20, "https://vsezol.com", "cyan");
+  canvas.text(30, 20, "https://vsezol.com", "green");
 }
 
 function calcFps(): void {
