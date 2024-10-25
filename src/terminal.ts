@@ -6,4 +6,8 @@ export class Terminal {
   clear(): void {
     process.stdout.write("\x1Bc");
   }
+
+  onResize(fn: () => unknown): void {
+    process.on("SIGWINCH", fn);
+  }
 }

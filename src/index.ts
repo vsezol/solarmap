@@ -9,18 +9,22 @@ const DEFAULT_FPS = 20;
 
 const args = process.argv;
 
-const hasClear = args.includes("--clear");
-
 const fpsArg = Number(args[args.indexOf("--fps") + 1]);
 const fps = isNaN(fpsArg) ? DEFAULT_FPS : fpsArg;
 
-const canvas = new Canvas();
 const terminal = new Terminal();
 
-const center = canvas.center;
+let canvas = new Canvas();
+
+terminal.onResize(() => {
+  canvas = new Canvas();
+});
+
+let time = performance.now();
+let currentFps = 0;
 
 const animate = (): void => {
-  const time = performance.now() / 100000;
+  const ticks = time / 100000;
 
   canvas.clear();
 
@@ -28,16 +32,16 @@ const animate = (): void => {
 
   planets.forEach((planet) => {
     drawOrbit(planet);
-    drawPlanet(planet, time);
+    drawPlanet(planet, ticks);
   });
   asteroids.forEach(drawAsteroid);
 
-  canvas.text(20, 10, "Vsevolod Zolotov");
-  canvas.text(20, 11, "Senior Frontend Developer");
-  canvas.text(20, 12, "vsezol.com");
+  drawAuthorInfo();
+  drawFps();
 
-  hasClear && terminal.clear();
+  terminal.clear();
   terminal.print(canvas.frame());
+  calcFps();
 
   setTimeout(() => animate(), Math.round(1000 / fps));
 };
@@ -45,13 +49,13 @@ const animate = (): void => {
 animate();
 
 function drawSun(): void {
-  canvas.circle(center.x, center.y, sun.radius, sun.color);
+  canvas.circle(canvas.center.x, canvas.center.y, sun.radius, sun.color);
 }
 
-function drawPlanet(planet: Planet, time: number): void {
-  const angle = time * planet.speed;
-  const x = center.x + planet.distance * Math.cos(angle);
-  const y = center.y + planet.distance * Math.sin(angle);
+function drawPlanet(planet: Planet, ticks: number): void {
+  const angle = ticks * planet.speed;
+  const x = canvas.center.x + planet.distance * Math.cos(angle);
+  const y = canvas.center.y + planet.distance * Math.sin(angle);
 
   canvas.circle(x, y, planet.radius, planet.color);
 
@@ -66,8 +70,8 @@ function drawPlanet(planet: Planet, time: number): void {
 }
 
 function drawAsteroid(asteroid: Asteroid): void {
-  const x = center.x + asteroid.radius * Math.cos(asteroid.angle);
-  const y = center.y + asteroid.radius * Math.sin(asteroid.angle);
+  const x = canvas.center.x + asteroid.radius * Math.cos(asteroid.angle);
+  const y = canvas.center.y + asteroid.radius * Math.sin(asteroid.angle);
   asteroid.angle += asteroid.speed;
 
   canvas.set(x, y);
@@ -81,5 +85,24 @@ function drawMoon(moon: Moon, x: number, y: number): void {
 }
 
 function drawOrbit(planet: Planet): void {
-  canvas.ring(center.x, center.y, planet.distance);
+  canvas.ring(canvas.center.x, canvas.center.y, planet.distance);
+}
+
+function drawAuthorInfo(): void {
+  canvas.clearReact(8, 8, 72, 26);
+  canvas.rect(8, 8, 72, 26, "white");
+  canvas.text(12, 12, "Vsevolod Zolotov, Senior Dev.");
+  canvas.text(12, 20, "website:");
+  canvas.text(30, 20, "https://vsezol.com", "cyan");
+}
+
+function calcFps(): void {
+  const currentTime = performance.now();
+  const deltaTime = currentTime - time;
+  currentFps = Math.floor(1000 / deltaTime);
+  time = currentTime;
+}
+
+function drawFps(): void {
+  canvas.text(canvas.width - 12, canvas.height - 1, `${currentFps} FPS`);
 }
