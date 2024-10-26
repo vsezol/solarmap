@@ -153,7 +153,3 @@ function drawToolbar(): void {
 function drawCheckbox(x: number, y: number, value: boolean): void {
   canvas.text(x, y, value ? "◉" : "◯", value ? "green" : "white");
 }
-
-// "◉" : "◯"
-// checkboxOn: '☒',
-// checkboxOff: '☐',
