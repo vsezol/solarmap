@@ -14,7 +14,7 @@ export const getSettings = (): Settings => {
   const fps = isNaN(fpsArg) ? DEFAULT_FPS : fpsArg;
   const hints = args.includes("--hints");
   const orbits = !args.includes("--no-orbits");
-  const sound = !args.includes("--no-sound");
+  const sound = args.includes("--sound");
 
   return {
     fps,

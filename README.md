@@ -31,7 +31,7 @@ npx solarmap
 
 You can also launch the application with the following flags:
 
-- `--no-sound`: Disable sound playback.
+- `--sound`: Enable sound playback.
 - `--fps xx`: Set a custom starting FPS.
 - `--no-orbits`: Disable the display of orbits.
 - `--hints`: Enable the display of celestial body names.
@@ -39,7 +39,7 @@ You can also launch the application with the following flags:
 You can combine multiple flags as needed:
 
 ```bash
-npx solarmap --fps 30 --no-sound --no-orbits --hints
+npx solarmap --fps 30 --sound --no-orbits --hints
 ```
 
 ## License
