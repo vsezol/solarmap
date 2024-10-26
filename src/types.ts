@@ -41,6 +41,5 @@ export interface Moon {
   name: string;
   orbitRadius: number;
   speed: number;
-  angle: number;
   color: Color;
 }

@@ -62,13 +62,14 @@ const animate = (): void => {
   drawToolbar();
   drawAppInfo();
 
-  terminal.clear();
-  terminal.print(canvas.frame());
+  terminal.partialWrite(canvas.frame());
 
   monitoring.measure();
 
   setTimeout(() => animate(), Math.round(1000 / settings.fps));
 };
+
+terminal.hideCursor();
 
 animate();
 
@@ -100,17 +101,17 @@ function drawPlanet(planet: Planet): void {
 }
 
 function drawAsteroid(asteroid: Asteroid): void {
-  const x = canvas.center.x + asteroid.radius * Math.cos(asteroid.angle);
-  const y = canvas.center.y + asteroid.radius * Math.sin(asteroid.angle);
-  asteroid.angle += asteroid.speed;
+  const angle = monitoring.ticks * asteroid.speed + asteroid.angle;
+  const x = canvas.center.x + asteroid.radius * Math.cos(angle);
+  const y = canvas.center.y + asteroid.radius * Math.sin(angle);
 
   canvas.set(x, y);
 }
 
 function drawMoon(moon: Moon, x: number, y: number): void {
-  const moonX = x + moon.orbitRadius * Math.cos(moon.angle);
-  const moonY = y + moon.orbitRadius * Math.sin(moon.angle);
-  moon.angle += moon.speed;
+  const angle = monitoring.ticks * moon.speed;
+  const moonX = x + moon.orbitRadius * Math.cos(angle);
+  const moonY = y + moon.orbitRadius * Math.sin(angle);
 
   canvas.circle(moonX, moonY, 1, moon.color);
 

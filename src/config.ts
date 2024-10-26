@@ -25,8 +25,7 @@ export const planets: Planet[] = [
       {
         name: "Moon",
         orbitRadius: 8,
-        speed: 0.6,
-        angle: 0,
+        speed: 600,
         color: "white",
       },
     ],
@@ -48,22 +47,19 @@ export const planets: Planet[] = [
       {
         name: "Io",
         orbitRadius: 9,
-        speed: 0.2,
-        angle: 0,
+        speed: 200,
         color: "yellow",
       },
       {
         name: "Europa",
         orbitRadius: 10,
-        speed: 0.15,
-        angle: 0,
+        speed: 150,
         color: "white",
       },
       {
         name: "Ganymede",
         orbitRadius: 12,
-        speed: 0.1,
-        angle: 0,
+        speed: 100,
         color: "white",
       },
     ],
@@ -97,7 +93,7 @@ export const asteroids: Asteroid[] = [
   Array.from({ length: 250 }, () => ({
     radius: 65 + Math.random() * 5,
     angle: Math.random() * 2 * Math.PI,
-    speed: 0.005 + Math.random() * 0.002,
+    speed: 5 + Math.random() * 2,
   })),
   Array.from({ length: 1000 }, () => {
     const randomRadius = Math.random() * 40;
@@ -105,7 +101,7 @@ export const asteroids: Asteroid[] = [
     return {
       radius,
       angle: Math.random() * 2 * Math.PI,
-      speed: 0.001 + Math.random() * 0.002 + randomRadius * 0.0002,
+      speed: 1 + Math.random() * 2 + randomRadius * 0.2,
     };
   }),
 ].flat();
