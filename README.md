@@ -2,15 +2,6 @@
 
 Solar Map is a solar system simulation in your terminal, using a high-performance custom rendering engine to display any content directly in the terminal. It leverages a partial content update mechanism to achieve high FPS and eliminate screen flickering, ensuring smooth animations and a responsive experience.
 
-## Demo Video
-
-[Watch the demo video](path/to/demo/video.mp4)
-
-## Screenshots
-
-![Screenshot 1](path/to/screenshot1.png)
-![Screenshot 2](path/to/screenshot2.png)
-
 ## Usage
 
 The application runs in the terminal and renders an animated simulation of the solar system. The simulation updates in real-time, with adjustable frame rate and interactive controls.
@@ -20,6 +11,12 @@ To start the Solar Map simulation, use:
 ```bash
 npx solarmap
 ```
+
+## Demo
+
+[Watch demo video on YouTube!](https://youtu.be/YyhdgBIF7J8)
+
+![Demo gif](/media/demo.gif)
 
 ## Controls
 
