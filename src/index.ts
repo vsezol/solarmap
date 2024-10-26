@@ -5,7 +5,7 @@ import { asteroids, planets, sun } from "./config.js";
 import { getSettings } from "./get-settings.js";
 import { Keyboard } from "./keyboard.js";
 import { Monitoring } from "./monitoring.js";
-import { playMusic } from "./play-music.js";
+import { Player } from "./player.js";
 import { Terminal } from "./terminal.js";
 import { Asteroid, Moon, Planet } from "./types.js";
 import { version } from "./version.js";
@@ -14,6 +14,7 @@ const settings = getSettings();
 const terminal = new Terminal();
 const keyboard = new Keyboard();
 const monitoring = new Monitoring();
+const player = new Player();
 
 let canvas = new Canvas();
 terminal.onResize(() => {
@@ -29,7 +30,19 @@ keyboard.on((key) => {
       settings.fps--;
       break;
     case "s":
-      settings.sound = !settings.sound;
+      if (player.running) {
+        settings.sound = false;
+        player.stop();
+      } else {
+        settings.sound = true;
+        player.play();
+      }
+      break;
+    case "o":
+      settings.orbits = !settings.orbits;
+      break;
+    case "h":
+      settings.hints = !settings.hints;
       break;
   }
 });
@@ -46,8 +59,8 @@ const animate = (): void => {
   asteroids.forEach(drawAsteroid);
 
   drawAuthorInfo();
-  drawAppInfo();
   drawToolbar();
+  drawAppInfo();
 
   terminal.clear();
   terminal.print(canvas.frame());
@@ -60,8 +73,8 @@ const animate = (): void => {
 animate();
 
 if (settings.sound) {
-  const stopMusic = playMusic();
-  keyboard.onExit(() => stopMusic());
+  player.play();
+  keyboard.onExit(() => player.stop());
 }
 
 function drawSun(): void {
@@ -124,11 +137,23 @@ function drawAppInfo(): void {
 }
 
 function drawToolbar(): void {
-  canvas.text(
-    0,
-    canvas.height - 1,
-    `${monitoring.fps} FPS (press ↑ or ↓) ${
-      settings.sound ? "✔" : "☓"
-    } sound (press s)`
-  );
+  const x = 0;
+  const y = canvas.height - 1;
+
+  canvas.clearReact(x, y - 5, x + 600, canvas.width);
+  canvas.text(x, y, `${monitoring.fps} FPS (press ↑ or ↓)`);
+  drawCheckbox(x + 44, y, settings.sound);
+  canvas.text(x + 48, y, `sound (press s)`);
+  drawCheckbox(x + 80, y, settings.orbits);
+  canvas.text(x + 84, y, `orbits (press o)`);
+  drawCheckbox(x + 118, y, settings.hints);
+  canvas.text(x + 122, y, `hints (press h)`);
 }
+
+function drawCheckbox(x: number, y: number, value: boolean): void {
+  canvas.text(x, y, value ? "◉" : "◯", value ? "green" : "white");
+}
+
+// "◉" : "◯"
+// checkboxOn: '☒',
+// checkboxOff: '☐',
