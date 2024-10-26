@@ -1,6 +1,6 @@
 {
   "name": "solarmap",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "main": "build/index.js",
   "type": "module",
   "files": [

@@ -1,4 +1,5 @@
 import { ChildProcess } from "child_process";
+import path from "path";
 import createPlayer from "play-sound";
 
 export class Player {
@@ -13,7 +14,7 @@ export class Player {
   play(): void {
     this.#running = true;
     this.#audio = this.#player.play(
-      "assets/sound.mp3",
+      path.join(process.cwd(), "assets/sound.mp3"),
       () => this.running && this.play()
     );
   }
