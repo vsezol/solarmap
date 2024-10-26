@@ -1,6 +1,6 @@
 {
   "name": "solarmap",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "build/index.js",
   "type": "module",
   "files": [
@@ -10,8 +10,8 @@
     "solarmap": "build/index.js"
   },
   "scripts": {
-    "prebuild": "node gen-version.js",
-    "build": "tsc",
+    "prebuild": "node scripts/prebuild.js",
+    "build": "node scripts/build.js",
     "start": "npm run build && node build/index.js"
   },
   "author": "Vsevolod Zolotov | vsezol.com | vsezold@gmail.com",
@@ -19,6 +19,10 @@
   "description": "Solar system in your terminal!",
   "devDependencies": {
     "@types/node": "^22.8.0",
+    "@types/play-sound": "^1.1.2",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "play-sound": "^1.1.6"
   }
 }
